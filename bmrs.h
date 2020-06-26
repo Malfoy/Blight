@@ -59,7 +59,7 @@ public:
     rs_index(const rs_index& rsi);
     
     /// init arrays to zeros
-    void init() BMNOEXEPT;
+    void init() BMNOEXCEPT;
 
     /// copy rs index
     void copy_from(const rs_index& rsi);
@@ -135,8 +135,10 @@ public:
     block_idx_type find(size_type rank) const;
     
 private:
-    typedef bm::heap_vector<sblock_count_type, bv_allocator_type>  sblock_count_vector_type;
-    typedef bm::heap_vector<unsigned, bv_allocator_type>  sblock_row_vector_type;
+    typedef bm::heap_vector<sblock_count_type, bv_allocator_type, false>
+                                                    sblock_count_vector_type;
+    typedef bm::heap_vector<unsigned, bv_allocator_type, false>
+                                                    sblock_row_vector_type;
     typedef bm::dynamic_heap_matrix<unsigned, bv_allocator_type>  blocks_matrix_type;
 
 private:
@@ -163,7 +165,7 @@ rs_index<BVAlloc>::rs_index(const rs_index<BVAlloc>& rsi)
 
 
 template<typename BVAlloc>
-void rs_index<BVAlloc>::init() BMNOEXEPT
+void rs_index<BVAlloc>::init() BMNOEXCEPT
 {
     sblock_count_.resize(0);
     sblock_row_idx_.resize(0);
@@ -402,8 +404,8 @@ bool rs_index<BVAlloc>::find(size_type* rank,
         } // for j
         *rank = r;
 
-        unsigned first = rs3_border0;
-        unsigned second = rs3_border1 - first;
+        unsigned first = rs3_border0 + 1;
+        unsigned second = rs3_border1 - first + 1;
         if (*rank > first)
         {
             *rank -= first;

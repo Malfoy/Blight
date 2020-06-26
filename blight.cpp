@@ -593,10 +593,10 @@ void kmer_Set_Light::read_super_buckets(const string& input_file) {
 					uint64_t minimizer(stoi(useless));
 					str2bool(line, minimizer);
 					position_super_kmers_local[number_kmer_accu[minimizer % bucket_per_superBuckets] + all_mphf[minimizer].mphf_size] = true;
-#pragma omp atomic
+					#pragma omp atomic
 					number_kmer += line.size() - k + 1;
 					number_kmer_accu[minimizer % bucket_per_superBuckets] += line.size() - k + 1;
-#pragma omp atomic
+					#pragma omp atomic
 					++number_super_kmer;
 					line.clear();
 				}
@@ -617,6 +617,7 @@ void kmer_Set_Light::read_super_buckets(const string& input_file) {
 		{ position_super_kmers.merge(position_super_kmers_local); }
 	}
 	position_super_kmers[number_kmer] = true;
+	// position_super_kmers[number_kmer+1] = true;
 	position_super_kmers.optimize();
 	position_super_kmers.optimize_gap_size();
 	position_super_kmers_RS = new bm::bvector<>::rs_index_type();
@@ -924,6 +925,11 @@ int64_t kmer_Set_Light::hash_to_rank(const int64_t hash, kmer minimizer) {
 
 
 
+
+
+
+
+
 vector<kmer> kmer_Set_Light::kmer_to_superkmer(const kmer canon, kmer minimizer, int64_t& rank, int64_t& hash) {
 	hash = kmer_to_hash(canon, minimizer);
 	if (hash < 0) {
@@ -934,14 +940,13 @@ vector<kmer> kmer_Set_Light::kmer_to_superkmer(const kmer canon, kmer minimizer,
 		return {};
 	}
 	vector<kmer> result;
+	// return {0};
 	bool found(false);
 	bm::id64_t pos, next_position, stop_position;
 	position_super_kmers.select(rank + 1, pos, *(position_super_kmers_RS));
 	for (uint64_t check_super_kmer(0); check_super_kmer < positions_to_check.value() and not found; ++check_super_kmer) {
 		next_position = (position_super_kmers.get_next(pos));
 		if (next_position == 0) {
-			// cout<<"no succesor"<<endl;
-			return {};
 			stop_position = bucketSeq.size() - k;
 		} else {
 			stop_position = next_position + (rank + check_super_kmer) * (k - 1);
@@ -970,6 +975,7 @@ vector<kmer> kmer_Set_Light::kmer_to_superkmer(const kmer canon, kmer minimizer,
 	}
 	return {};
 }
+
 
 
 
@@ -1079,7 +1085,7 @@ void kmer_Set_Light::file_query_presence(const string& query_file) {
 	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	auto in                              = new zstr::ifstream(query_file);
 	atomic<uint64_t> TP(0), FP(0);
-#pragma omp parallel num_threads(coreNumber)
+#pragma omp parallel num_threads	(coreNumber)
 	{
 		while (not in->eof() and in->good()) {
 			string query;
@@ -1098,6 +1104,31 @@ void kmer_Set_Light::file_query_presence(const string& query_file) {
 			}
 		}
 	}
+
+
+// 	bm::bvector<>::enumerator en = position_super_kmers.first();
+// bm::bvector<>::enumerator en_end = position_super_kmers.end();
+// uint i(0);
+// while (en < en_end)
+// {
+// 	if(i!= *en){
+// 		cout<<i<<endl;
+// 		cin.get();
+// 	}
+// 	++en;
+// 	++i; // Fastest way to increment enumerator
+// }
+//
+//
+// cout << endl;
+// 	cout<< position_super_kmers.count()<<endl;
+// 	cout<<*position_super_kmers.end()-1<<endl;
+// 	bm::bvector<>::statistics st;
+// position_super_kmers.calc_stat(&st);
+
+// std::cout << "Bit-vector statistics: GAP (compressed blocks)=" << st.gap_blocks
+// 		  << ", BIT (uncompressed blocks)=" << st.bit_blocks
+// 		  << std::endl << std::endl;
 	cout << endl
 	     << "-----------------------QUERY PRESENCE RECAP ----------------------------" << endl;
 	cout << "Good kmer: " << intToString(TP) << endl;

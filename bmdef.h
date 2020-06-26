@@ -72,10 +72,15 @@ For more information please visit:  http://bitmagic.io
 // cxx11 features
 //
 #if defined(BM_NO_CXX11) || (defined(_MSC_VER)  &&  _MSC_VER < 1900)
-# define BMNOEXEPT
+# define BMNOEXCEPT
+# define BMNOEXCEPT2
 #else
-# ifndef BMNOEXEPT
-#  define BMNOEXEPT noexcept
+# ifndef BMNOEXCEPT
+#  define BMNOEXCEPT noexcept
+#if defined(__EMSCRIPTEN__)
+#else
+#  define BMNOEXCEPT2
+#endif
 # endif
 #endif
 
@@ -84,15 +89,14 @@ For more information please visit:  http://bitmagic.io
 // detects use of EMSCRIPTEN engine and tweaks settings
 // WebAssemply compiles into 32-bit ptr yet 64-bit wordsize use GCC extensions
 //
+// BMNOEXCEPT2 is to declare "noexcept" for WebAsm only where needed
+// and silence GCC warnings where not
 #if defined(__EMSCRIPTEN__)
 # define BM64OPT
 # define BM_USE_GCC_BUILD
-#endif
-
-// disable 'register' keyword, which is obsolete in C++11
-//
-#ifndef BMREGISTER
-# define BMREGISTER
+# define BMNOEXCEPT2 noexcept
+#else
+#  define BMNOEXCEPT2
 #endif
 
 
@@ -404,7 +408,8 @@ For more information please visit:  http://bitmagic.io
 #ifndef __has_attribute
 #  define __has_attribute(x) 0
 #endif
-#if __has_cpp_attribute(fallthrough)
+#if __has_cpp_attribute(fallthrough)  &&  \
+    (!defined(__clang__)  ||  __clang_major__ > 7  ||  __cplusplus >= 201703L)
 #  define BM_FALLTHROUGH [[fallthrough]]
 #elif __has_cpp_attribute(gcc::fallthrough)
 #  define BM_FALLTHROUGH [[gcc::fallthrough]]

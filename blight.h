@@ -136,7 +136,7 @@ class kmer_Set_Light {
 
 	vector<bool> bucketSeq;
 	vector<bool> positions;
-	bm::bvector<> position_super_kmers = bm::bvector<>(bm::BM_GAP);
+	bm::bvector<> position_super_kmers = bm::bvector<>(bm::BM_BIT);
 	bm::bvector<>::rs_index_type* position_super_kmers_RS;
 	mutex positions_mutex[4096];
 
