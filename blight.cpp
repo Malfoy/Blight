@@ -297,7 +297,7 @@ void kmer_Set_Light::create_super_buckets(const string& input_file) {
 				// FOREACH KMER
 				kmer seq(str2num(ref.substr(0, k)));
 				uint64_t position_min;
-				uint64_t min_seq = (str2num(ref.substr(k - minimizer_size_graph, minimizer_size_graph))), min_rcseq(rcbc(min_seq, minimizer_size_graph)),
+				kmer min_seq = (str2num(ref.substr(k - minimizer_size_graph, minimizer_size_graph))), min_rcseq(rcbc(min_seq, minimizer_size_graph)),
 				         min_canon(min(min_seq, min_rcseq));
 				minimizer         = regular_minimizer_pos(seq, position_min);
 				old_minimizer     = minimizer;
