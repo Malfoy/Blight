@@ -1,33 +1,11 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <iterator>
-#include <ctime>
-#include <unordered_map>
-#include <algorithm>
-#include <cmath>
-#include <chrono>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <iterator>
-#include <unordered_map>
-#include <set>
-#include <algorithm>
-#include <chrono>
-#include <map>
-#include <set>
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
-
 #include "blight.h"
+
+
 
 using namespace std;
 using namespace chrono;
+
+
 
 int main(int argc, char** argv) {
 	char ch;
@@ -67,7 +45,7 @@ int main(int argc, char** argv) {
 		     << "By default only presence benchmark is performed \nUse -h for hash benchmark or -a for a complete test and verification" << endl
 		     << "Performances arguments:" << endl
 		     << "	-m minimizer size (10)" << endl
-		     << "	-n to create 4^n mphf (m). More mean slower construction but better index, must be <=m" << endl
+		     //~ << "	-n to create 4^n mphf (m). More mean slower construction but better index, must be <=m" << endl
 		     << "	-s to use 4^s files (4). More reduce memory usage and use more files, must be <=n" << endl
 		     << "	-t core used (1)" << endl
 		     << "	-b bit saved to encode positions (0). Will reduce the memory usage of b bit per kmer but query have to check 2^b kmers" << endl;
@@ -78,7 +56,7 @@ int main(int argc, char** argv) {
 		cout << "I use -k " + to_string(k) + " -m  " + to_string(m1) + " -n  " + to_string(m2) + " -s  " + to_string(m3) + " -t " + to_string(c) + " -b "
 		          + to_string(bit)
 		     << endl;
-		kmer_Set_Light ksl(k, m1, m2, m3, c, bit);
+		kmer_Set_Light ksl(k, m1, m3, c, bit);
 		if (input != "") {
 			cout << "Build index from file " << input << " in directory wdir (if it does not exists please create it)" << endl;
 			ksl.construct_index(input, "wdir");

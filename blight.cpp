@@ -30,13 +30,6 @@ using namespace chrono;
 
 
 
-uint kmer_number_check(0);
-uint kmer_number_check2(0);
-uint kmer_number_check3(0);
-uint skmer_number_check(0);
-
-
-
 __uint128_t kmer_Set_Light::rcb(const __uint128_t& in) {
 	assume(k <= 64, "k=%u > 64", k);
 	union kmer_u {
@@ -273,14 +266,14 @@ void kmer_Set_Light::create_super_buckets(const string& input_file) {
 	for (uint64_t i = 0; i < number_superbuckets; i++) {
 		omp_init_lock(&(lock[i]));
 	}
-#pragma omp parallel num_threads(coreNumber)
+	#pragma omp parallel num_threads(coreNumber)
 	{
 		string ref, useless;
 		vector<string> buffer(number_superbuckets.value());
 		minimizer_type old_minimizer, minimizer;
 		while (not inUnitigs->eof()) {
 			ref = useless = "";
-#pragma omp critical(dataupdate)
+			#pragma omp critical(dataupdate)
 			{
 				getline(*inUnitigs, useless);
 				getline(*inUnitigs, ref);
@@ -334,14 +327,14 @@ void kmer_Set_Light::create_super_buckets(const string& input_file) {
 							omp_unset_lock(&(lock[((old_minimizer)) / bucket_per_superBuckets.value()]));
 							buffer[old_minimizer / bucket_per_superBuckets.value()].clear();
 						}
-#pragma omp atomic
+						#pragma omp atomic
 						nuc_minimizer[old_minimizer] += (i - last_position + k);
-#pragma omp atomic
+						#pragma omp atomic
 						all_buckets[old_minimizer].skmer_number++;
-#pragma omp atomic
+						#pragma omp atomic
 						all_mphf[old_minimizer / number_bucket_per_mphf].mphf_size += (i - last_position + k) - k + 1;
 						all_mphf[old_minimizer / number_bucket_per_mphf].empty = false;
-#pragma omp atomic
+						#pragma omp atomic
 						total_nuc_number += (i - last_position + k);
 						last_position = i + 1;
 						old_minimizer = minimizer;
@@ -357,13 +350,13 @@ void kmer_Set_Light::create_super_buckets(const string& input_file) {
 						omp_unset_lock(&(lock[((old_minimizer)) / bucket_per_superBuckets.value()]));
 						buffer[old_minimizer / bucket_per_superBuckets.value()].clear();
 					}
-#pragma omp atomic
+					#pragma omp atomic
 					nuc_minimizer[old_minimizer] += (ref.substr(last_position)).size();
-#pragma omp atomic
+					#pragma omp atomic
 					all_buckets[old_minimizer].skmer_number++;
-#pragma omp atomic
+					#pragma omp atomic
 					total_nuc_number += (ref.substr(last_position)).size();
-#pragma omp atomic
+					#pragma omp atomic
 					all_mphf[old_minimizer / number_bucket_per_mphf].mphf_size += (ref.substr(last_position)).size() - k + 1;
 					all_mphf[old_minimizer / number_bucket_per_mphf].empty = false;
 				}
@@ -465,6 +458,7 @@ void kmer_Set_Light::initialize_buckets() {
 }
 
 
+
 void kmer_Set_Light::str2bool(const string& str, uint64_t mini) {
 	for (uint64_t i(0); i < str.size(); ++i) {
 		switch (str[i]) {
@@ -508,11 +502,11 @@ uint64_t kmer_Set_Light::get_minimizer_from_header(zstr::ifstream& in) {
 
 
 void kmer_Set_Light::read_super_buckets_reindeer(const string& input_file) {
-#pragma omp parallel num_threads(coreNumber)
+	#pragma omp parallel num_threads(coreNumber)
 	{
 		string header, line, mini;
 		bm::bvector<> position_super_kmers_local;
-#pragma omp for
+		#pragma omp for
 		for (uint64_t SBC = 0; SBC < number_superbuckets.value(); ++SBC) {
 			position_super_kmers_local.init();
 			vector<uint64_t> number_kmer_accu(bucket_per_superBuckets.value(), 0);
@@ -529,10 +523,10 @@ void kmer_Set_Light::read_super_buckets_reindeer(const string& input_file) {
 
 					str2bool(line, minimizer);
 					position_super_kmers_local[number_kmer_accu[minimizer % bucket_per_superBuckets] + all_mphf[minimizer].mphf_size] = true;
-#pragma omp atomic
+					#pragma omp atomic
 					number_kmer += line.size() - k + 1;
 					number_kmer_accu[minimizer % bucket_per_superBuckets] += line.size() - k + 1;
-#pragma omp atomic
+					#pragma omp atomic
 					++number_super_kmer;
 					line.clear();
 				}
@@ -543,7 +537,7 @@ void kmer_Set_Light::read_super_buckets_reindeer(const string& input_file) {
 			BC += bucket_per_superBuckets.value();
 			cout << "-" << flush;
 		}
-#pragma omp critical(PSK)
+		#pragma omp critical(PSK)
 		{ position_super_kmers.merge(position_super_kmers_local); }
 	}
 	position_super_kmers[number_kmer] = true;
@@ -573,13 +567,12 @@ void kmer_Set_Light::read_super_buckets_reindeer(const string& input_file) {
 
 
 void kmer_Set_Light::read_super_buckets(const string& input_file) {
-#pragma omp parallel num_threads(coreNumber)
+	#pragma omp parallel num_threads(coreNumber)
 	{
 		string useless, line;
 		bm::bvector<> position_super_kmers_local;
-#pragma omp for
+	#pragma omp for
 		for (uint64_t SBC = 0; SBC < number_superbuckets.value(); ++SBC) {
-			// bm::bvector<> position_super_kmers_local;
 			position_super_kmers_local.init();
 			vector<uint64_t> number_kmer_accu(bucket_per_superBuckets.value(), 0);
 			uint64_t BC(SBC * bucket_per_superBuckets);
@@ -607,17 +600,12 @@ void kmer_Set_Light::read_super_buckets(const string& input_file) {
 
 			fill_positions(BC, BC + bucket_per_superBuckets, position_super_kmers_local);
 			BC += bucket_per_superBuckets.value();
-			// #pragma omp critical(PSK)
-			// {
-			// 	position_super_kmers.merge(position_super_kmers_local);
-			// }
 			cout << "-" << flush;
 		}
-#pragma omp critical(PSK)
+		#pragma omp critical(PSK)
 		{ position_super_kmers.merge(position_super_kmers_local); }
 	}
 	position_super_kmers[number_kmer] = true;
-	// position_super_kmers[number_kmer+1] = true;
 	position_super_kmers.optimize();
 	position_super_kmers.optimize_gap_size();
 	position_super_kmers_RS = new bm::bvector<>::rs_index_type();
@@ -728,14 +716,13 @@ string kmer_Set_Light::kmer2str(kmer num) {
 
 
 void kmer_Set_Light::create_mphf_mem(uint64_t begin_BC, uint64_t end_BC) {
-#pragma omp parallel num_threads(coreNumber)
+	#pragma omp parallel num_threads(coreNumber)
 	{
 		vector<kmer> anchors;
 		uint32_t largest_bucket_anchor(0);
 		uint32_t largest_bucket_nuc(0);
-#pragma omp for schedule(dynamic, number_bucket_per_mphf.value())
+		#pragma omp for schedule(dynamic, number_bucket_per_mphf.value())
 		for (uint64_t BC = (begin_BC); BC < end_BC; ++BC) {
-			//if(all_buckets[BC].nuc_minimizer!=0){
 			if (nuc_minimizer[BC] != 0) {
 				largest_bucket_nuc     = max(largest_bucket_nuc, nuc_minimizer[BC]);
 				largest_bucket_nuc_all = max(largest_bucket_nuc_all, nuc_minimizer[BC]);
@@ -774,11 +761,11 @@ void kmer_Set_Light::create_mphf_mem(uint64_t begin_BC, uint64_t end_BC) {
 
 
 void kmer_Set_Light::create_mphf_disk(uint64_t begin_BC, uint64_t end_BC, bm::bvector<>& position_super_kmers_local) {
-#pragma omp parallel num_threads(coreNumber)
+	#pragma omp parallel num_threads(coreNumber)
 	{
 		uint32_t largest_bucket_anchor(0);
 		uint32_t largest_bucket_nuc(0);
-#pragma omp for schedule(dynamic, number_bucket_per_mphf.value())
+		#pragma omp for schedule(dynamic, number_bucket_per_mphf.value())
 		for (uint64_t BC = (begin_BC); BC < end_BC; ++BC) {
 			uint64_t mphfSize(0);
 			string name(working_dir + "_blkmers" + to_string(BC));
@@ -858,17 +845,14 @@ uint64_t kmer_Set_Light::bool_to_int(uint64_t n_bits_to_encode, uint64_t pos, ui
 
 
 void kmer_Set_Light::fill_positions(uint64_t begin_BC, uint64_t end_BC, bm::bvector<>& position_super_kmers_local) {
-#pragma omp parallel for num_threads(coreNumber)
+	#pragma omp parallel for num_threads(coreNumber)
 	for (uint64_t BC = (begin_BC); BC < end_BC; ++BC) {
 		uint64_t super_kmer_id(0);
 		if (nuc_minimizer[BC] > 0) {
 			uint64_t kmer_id(1);
 			int n_bits_to_encode(all_mphf[BC / number_bucket_per_mphf].bit_to_encode);
 			kmer seq(get_kmer(BC, 0)), rcSeq(rcb(seq)), canon(min_k(seq, rcSeq));
-			int_to_bool(n_bits_to_encode,
-			            super_kmer_id / positions_to_check.value(),
-			            all_mphf[BC / number_bucket_per_mphf].kmer_MPHF->lookup(canon),
-			            all_mphf[BC / number_bucket_per_mphf].start);
+			int_to_bool(n_bits_to_encode,super_kmer_id / positions_to_check.value(),all_mphf[BC / number_bucket_per_mphf].kmer_MPHF->lookup(canon),all_mphf[BC / number_bucket_per_mphf].start);
 			for (uint64_t j(0); (j + k) < nuc_minimizer[BC]; j++) {
 				if (position_super_kmers_local[all_mphf[BC].mphf_size + kmer_id]) {
 					j += k - 1;
@@ -876,24 +860,14 @@ void kmer_Set_Light::fill_positions(uint64_t begin_BC, uint64_t end_BC, bm::bvec
 					kmer_id++;
 					if ((j + k) < nuc_minimizer[BC]) {
 						seq = (get_kmer(BC, j + 1)), rcSeq = (rcb(seq)), canon = (min_k(seq, rcSeq));
-						{
-							int_to_bool(n_bits_to_encode,
-							            super_kmer_id / positions_to_check.value(),
-							            all_mphf[BC / number_bucket_per_mphf].kmer_MPHF->lookup(canon),
-							            all_mphf[BC / number_bucket_per_mphf].start);
-						}
+						int_to_bool(n_bits_to_encode,super_kmer_id / positions_to_check.value(),all_mphf[BC / number_bucket_per_mphf].kmer_MPHF->lookup(canon), all_mphf[BC / number_bucket_per_mphf].start);
 					}
 				} else {
 					seq   = update_kmer(j + k, BC, seq);
 					rcSeq = (rcb(seq));
 					canon = (min_k(seq, rcSeq));
 					kmer_id++;
-					{
-						int_to_bool(n_bits_to_encode,
-						            super_kmer_id / positions_to_check.value(),
-						            all_mphf[BC / number_bucket_per_mphf].kmer_MPHF->lookup(canon),
-						            all_mphf[BC / number_bucket_per_mphf].start);
-					}
+					int_to_bool(n_bits_to_encode,super_kmer_id / positions_to_check.value(),all_mphf[BC / number_bucket_per_mphf].kmer_MPHF->lookup(canon), all_mphf[BC / number_bucket_per_mphf].start);
 				}
 			}
 		}
@@ -925,11 +899,6 @@ int64_t kmer_Set_Light::hash_to_rank(const int64_t hash, kmer minimizer) {
 
 
 
-
-
-
-
-
 vector<kmer> kmer_Set_Light::kmer_to_superkmer(const kmer canon, kmer minimizer, int64_t& rank, int64_t& hash) {
 	hash = kmer_to_hash(canon, minimizer);
 	if (hash < 0) {
@@ -940,7 +909,6 @@ vector<kmer> kmer_Set_Light::kmer_to_superkmer(const kmer canon, kmer minimizer,
 		return {};
 	}
 	vector<kmer> result;
-	// return {0};
 	bool found(false);
 	bm::id64_t pos, next_position, stop_position;
 	position_super_kmers.select(rank + 1, pos, *(position_super_kmers_RS));
@@ -1085,12 +1053,12 @@ void kmer_Set_Light::file_query_presence(const string& query_file) {
 	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	auto in                              = new zstr::ifstream(query_file);
 	atomic<uint64_t> TP(0), FP(0);
-#pragma omp parallel num_threads	(coreNumber)
+	#pragma omp parallel num_threads	(coreNumber)
 	{
 		while (not in->eof() and in->good()) {
 			string query;
 			vector<bool> presences;
-#pragma omp critical(dataupdate)
+			#pragma omp critical(dataupdate)
 			{
 				getline(*in, query);
 				getline(*in, query);
@@ -1105,30 +1073,6 @@ void kmer_Set_Light::file_query_presence(const string& query_file) {
 		}
 	}
 
-
-// 	bm::bvector<>::enumerator en = position_super_kmers.first();
-// bm::bvector<>::enumerator en_end = position_super_kmers.end();
-// uint i(0);
-// while (en < en_end)
-// {
-// 	if(i!= *en){
-// 		cout<<i<<endl;
-// 		cin.get();
-// 	}
-// 	++en;
-// 	++i; // Fastest way to increment enumerator
-// }
-//
-//
-// cout << endl;
-// 	cout<< position_super_kmers.count()<<endl;
-// 	cout<<*position_super_kmers.end()-1<<endl;
-// 	bm::bvector<>::statistics st;
-// position_super_kmers.calc_stat(&st);
-
-// std::cout << "Bit-vector statistics: GAP (compressed blocks)=" << st.gap_blocks
-// 		  << ", BIT (uncompressed blocks)=" << st.bit_blocks
-// 		  << std::endl << std::endl;
 	cout << endl
 	     << "-----------------------QUERY PRESENCE RECAP ----------------------------" << endl;
 	cout << "Good kmer: " << intToString(TP) << endl;
@@ -1146,13 +1090,13 @@ void kmer_Set_Light::file_query_hases(const string& query_file, bool check) {
 	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	auto in                              = new zstr::ifstream(query_file);
 	vector<int64_t> all_hashes;
-#pragma omp parallel num_threads(coreNumber)
+	#pragma omp parallel num_threads(coreNumber)
 	{
 		vector<kmer> kmerV;
 		while (not in->eof() and in->good()) {
 			string query;
 			vector<int64_t> query_hashes;
-#pragma omp critical(query_file)
+			#pragma omp critical(query_file)
 			{
 				getline(*in, query);
 				getline(*in, query);
@@ -1160,8 +1104,8 @@ void kmer_Set_Light::file_query_hases(const string& query_file, bool check) {
 			if (query.size() >= k) {
 				query_hashes = get_hashes_query(query);
 				if (check) {
-#pragma omp critical(query_file)
-					{ all_hashes.insert(all_hashes.end(), query_hashes.begin(), query_hashes.end()); }
+				#pragma omp critical(query_file)
+				{ all_hashes.insert(all_hashes.end(), query_hashes.begin(), query_hashes.end()); }
 				}
 			}
 		}
@@ -1180,7 +1124,6 @@ void kmer_Set_Light::file_query_hases(const string& query_file, bool check) {
 		if (all_hashes[i] != i) {
 			cout << all_hashes[i] << ":" << i << "	";
 			bijective = false;
-			// cin.get ();
 			break;
 		}
 	}
@@ -1198,20 +1141,20 @@ void kmer_Set_Light::file_query_rank(const string& query_file) {
 	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	auto in                              = new zstr::ifstream(query_file);
 	vector<int64_t> all_hashes;
-#pragma omp parallel num_threads(coreNumber)
+	#pragma omp parallel num_threads(coreNumber)
 	{
 		vector<kmer> kmerV;
 		while (not in->eof() and in->good()) {
 			string query;
 			vector<int64_t> query_hashes;
-#pragma omp critical(query_file)
+			#pragma omp critical(query_file)
 			{
 				getline(*in, query);
 				getline(*in, query);
 			}
 			if (query.size() >= k) {
 				query_hashes = get_rank_query(query);
-#pragma omp critical(query_file)
+				#pragma omp critical(query_file)
 				{ all_hashes.insert(all_hashes.end(), query_hashes.begin(), query_hashes.end()); }
 			}
 		}

@@ -1,13 +1,18 @@
-
 #include "utils.h"
+
+
 
 kmer nuc2int(char c) {
 	return (c / 2) % 4;
 }
 
+
+
 kmer nuc2intrc(char c) {
 	return ((c / 2) % 4) ^ 2;
 }
+
+
 
 string intToString(uint64_t n) {
 	if (n < 1000) {
@@ -23,6 +28,8 @@ string intToString(uint64_t n) {
 	return intToString(n / 1000) + ",00" + end;
 }
 
+
+
 char revCompChar(char c) {
 	switch (c) {
 		case 'A': return 'T';
@@ -32,6 +39,8 @@ char revCompChar(char c) {
 	return 'A';
 }
 
+
+
 string revComp(const string& s) {
 	string rc(s.size(), 0);
 	for (int i((int)s.length() - 1); i >= 0; i--) {
@@ -40,9 +49,13 @@ string revComp(const string& s) {
 	return rc;
 }
 
+
+
 string getCanonical(const string& str) {
 	return (min(str, revComp(str)));
 }
+
+
 
 kmer str2num(const string& str) {
 	kmer res(0);
@@ -53,12 +66,16 @@ kmer str2num(const string& str) {
 	return res;
 }
 
+
+
 uint32_t revhash(uint32_t x) {
 	x = ((x >> 16) ^ x) * 0x2c1b3c6d;
 	x = ((x >> 16) ^ x) * 0x297a2d39;
 	x = ((x >> 16) ^ x);
 	return x;
 }
+
+
 
 uint32_t unrevhash(uint32_t x) {
 	return hash64shift(x);
@@ -68,6 +85,8 @@ uint32_t unrevhash(uint32_t x) {
 	return x;
 }
 
+
+
 uint64_t revhash(uint64_t x) {
 	// return hash64shift(x);
 	x = ((x >> 32) ^ x) * 0xD6E8FEB86659FD93;
@@ -76,6 +95,8 @@ uint64_t revhash(uint64_t x) {
 	return x;
 }
 
+
+
 uint64_t unrevhash(uint64_t x) {
 	return hash64shift(x);
 	x = ((x >> 32) ^ x) * 0xCFEE444D8B59A89B;
@@ -83,6 +104,8 @@ uint64_t unrevhash(uint64_t x) {
 	x = ((x >> 32) ^ x);
 	return x;
 }
+
+
 
 vector<bool> str2boolv(const string& str) {
 	vector<bool> res;
@@ -100,6 +123,8 @@ vector<bool> str2boolv(const string& str) {
 	}
 	return res;
 }
+
+
 
 string bool2strv(const vector<bool>& v) {
 	string res;
@@ -121,6 +146,8 @@ string bool2strv(const vector<bool>& v) {
 	return res;
 }
 
+
+
 kmer hash64shift(kmer key) {
 	key = (~key) + (key << 21); // key = (key << 21) - key - 1;
 	key = key ^ (key >> 24);
@@ -132,6 +159,8 @@ kmer hash64shift(kmer key) {
 	return key;
 }
 
+
+
 void cat_stream(istream& is, ostream& os) {
 	const streamsize buff_size = 1 << 16;
 	char* buff = new char[buff_size];
@@ -142,25 +171,22 @@ void cat_stream(istream& is, ostream& os) {
 		os.write(buff, cnt);
 	}
 	delete[] buff;
-} // cat_stream
+}
+
+
 
 void decompress_file(const string& file, const string& output_file) {
-	//
-	// Set up sink ostream
-	//
 	unique_ptr<ofstream> ofs_p;
 	ostream* os_p = &cout;
 	if (not output_file.empty()) {
 		ofs_p = unique_ptr<ofstream>(new strict_fstream::ofstream(output_file));
 		os_p = ofs_p.get();
 	}
-	//
-	// Process files
-	//
-
 	unique_ptr<istream> is_p(new zstr::ifstream(file));
 	cat_stream(*is_p, *os_p);
-} // decompress_files
+}
+
+
 
 // It's quite complex to bitshift mmx register without an immediate (constant) count
 // See: https://stackoverflow.com/questions/34478328/the-best-way-to-shift-a-m128i
@@ -176,6 +202,8 @@ __m128i mm_bitshift_left(__m128i x, unsigned count) {
 	return _mm_or_si128(x, carry);
 }
 
+
+
 __m128i mm_bitshift_right(__m128i x, unsigned count) {
 	assume(count < 128, "count=%u >= 128", count);
 	__m128i carry = _mm_srli_si128(x, 8);
@@ -186,6 +214,8 @@ __m128i mm_bitshift_right(__m128i x, unsigned count) {
 	x = _mm_srli_epi64(x, count);
 	return _mm_or_si128(x, carry);
 }
+
+
 
 __uint128_t rcb(const __uint128_t& in, uint64_t n) {
 
@@ -230,10 +260,14 @@ __uint128_t rcb(const __uint128_t& in, uint64_t n) {
 	return res.k;
 }
 
+
+
 bool exists_test(const string& name) {
 	struct stat buffer;
 	return (stat(name.c_str(), &buffer) == 0);
 }
+
+
 
 uint64_t rcbc(uint64_t in, uint64_t n) {
 	assume(n <= 32, "n=%u > 32", n);
@@ -250,6 +284,8 @@ uint64_t rcbc(uint64_t in, uint64_t n) {
 	return res;
 }
 
+
+
 void print_bin(uint64_t n) {
 	uint64_t mask = 1;
 	mask <<= 63;
@@ -263,12 +299,16 @@ void print_bin(uint64_t n) {
 	cout << "\n";
 }
 
+
+
 kmer min_k(const kmer& k1, const kmer& k2) {
 	if (k1 <= k2) {
 		return k1;
 	}
 	return k2;
 }
+
+
 
 uint16_t parseCoverage_exact(const string& str) {
 	size_t pos(str.find("km:f:"));
@@ -282,19 +322,24 @@ uint16_t parseCoverage_exact(const string& str) {
 	while (str[i + pos + 5] != ' ') {
 		++i;
 	}
-	// cout<<"exact"<< (uint16_t)stof(str.substr(pos+5,i))<<endl;
 	return (uint16_t)stof(str.substr(pos + 5, i));
 }
+
+
 
 uint16_t parseCoverage_bool(const string& str) {
 	return 1;
 }
+
+
 
 uint64_t asm_log2(const uint64_t x) {
 	uint64_t y;
 	asm("\tbsr %1, %0\n" : "=r"(y) : "r"(x));
 	return y;
 }
+
+
 
 uint64_t mylog2(uint64_t val) {
 	if (val == 0) return 0;
@@ -306,6 +351,8 @@ uint64_t mylog2(uint64_t val) {
 	}
 	return ret;
 }
+
+
 
 uint16_t parseCoverage_log2(const string& str) {
 	size_t pos(str.find("km:f:"));
@@ -319,9 +366,10 @@ uint16_t parseCoverage_log2(const string& str) {
 	while (str[i + pos + 5] != ' ') {
 		++i;
 	}
-	// cout<<"log"<<asm_log2((uint16_t)stof(str.substr(pos+5,i)))<<endl;
 	return asm_log2((uint16_t)stof(str.substr(pos + 5, i)));
 }
+
+
 
 bool kmer_in_superkmer(const kmer canon, const vector<kmer>& V) {
 	for (uint64_t i(0); i < V.size(); i++) {
@@ -331,6 +379,8 @@ bool kmer_in_superkmer(const kmer canon, const vector<kmer>& V) {
 	}
 	return false;
 }
+
+
 
 void dump_vector_bool(const vector<bool>& V, ostream* out) {
 	int cmp = 0;
@@ -355,6 +405,8 @@ void dump_vector_bool(const vector<bool>& V, ostream* out) {
 	}
 	out->write((char*)buf.data(), buf.size());
 }
+
+
 
 void read_vector_bool(vector<bool>& V, zstr::ifstream* out, uint64_t n_bits) {
 	uint64_t size_buffer(8000);
@@ -389,15 +441,7 @@ void read_vector_bool(vector<bool>& V, zstr::ifstream* out, uint64_t n_bits) {
 	}
 }
 
-//~ vector<string> split(const string &s, char delim){
-//~ stringstream ss(s);
-//~ string item;
-//~ vector<string> elems;
-//~ while (getline(ss, item, delim)) {
-//~ elems.push_back(move(item));
-//~ }
-//~ return elems;
-//~ }
+
 
 vector<string> split(const string& s, char delim) {
 	vector<string> res;
@@ -412,6 +456,8 @@ vector<string> split(const string& s, char delim) {
 	return res;
 }
 
+
+
 void split(const string& s, char delim, vector<string>& res) {
 	res.clear();
 	uint pred(0);
@@ -423,6 +469,8 @@ void split(const string& s, char delim, vector<string>& res) {
 	}
 	res.push_back(s.substr(pred));
 }
+
+
 
 void split2(const string& s, char delim, vector<string>& res) {
 	res.clear();
@@ -441,6 +489,8 @@ void split2(const string& s, char delim, vector<string>& res) {
 	}
 }
 
+
+
 string bool2str(vector<bool> V) {
 	string result;
 	for (uint64_t i(0); i < V.size(); ++i) {
@@ -448,6 +498,8 @@ string bool2str(vector<bool> V) {
 	}
 	return result;
 }
+
+
 
 string color_coverage2str(const vector<uint16_t>& V) {
 	string result;

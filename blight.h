@@ -1,6 +1,8 @@
 #ifndef KSL
 #define KSL
 
+
+
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
@@ -21,41 +23,55 @@
 #include "bmserial.h"
 #include "robin_hood.h"
 
+
+
 #define BMSSE2OPT
 #define BMSSE42OPT
 #define BMAVX2OPT
 
+
+
+#define minimizer_type uint32_t
+
+
+
+// Use 64 bits int to represent kmer up to k=32
+#define kmer uint64_t
+
+
+
+// Use 128 bits int to represent kmer up to k=64
+// #define kmer __uint128_t
+
+
+
 using namespace std;
 
-// FOR k<32
-//~ #define kmer uint64_t
-// FOR k<64
-#define kmer __uint128_t
+
+
+typedef boomphf::SingleHashFunctor<kmer> hasher_t;
+typedef boomphf::mphf<kmer, hasher_t> MPHF;
+
+
 
 struct KmerHasher {
 	size_t operator()(const kmer& k) const { return ((uint64_t)k); }
 };
 
+
+
 struct kmer_context {
 	bool isdump;
 	vector<pair<uint16_t, uint16_t>> count;
-	// string  RLE;
 };
 
-#define minimizer_type uint32_t
 
-//~ typedef SingleHashFunctor128 hasher_t;
-typedef boomphf::SingleHashFunctor<kmer> hasher_t;
-
-//~ typedef boomphf::mphf<  hasher_t,kmer  > MPHF;
-typedef boomphf::mphf<kmer, hasher_t> MPHF;
 
 struct bucket_minimizer {
-	//~ uint64_t start;
-	//~ uint32_t abundance_minimizer;
-	//~ uint32_t nuc_minimizer;
 	uint32_t skmer_number;
 };
+
+
 
 struct info_mphf {
 	uint64_t mphf_size;
@@ -65,11 +81,15 @@ struct info_mphf {
 	bool empty;
 };
 
+
+
 struct minitig {
 	int32_t color;
 	uint16_t coverage;
 	string sequence;
 };
+
+
 
 // Represents the cardinality of a pow2 sized set. Allows div/mod arithmetic operations on indexes.
 template<typename T>
@@ -113,6 +133,8 @@ struct Pow2 {
   private:
 	uint_fast8_t _bits;
 };
+
+
 
 class kmer_Set_Light {
   public:
@@ -161,7 +183,7 @@ class kmer_Set_Light {
 	double bit_per_kmer = 0;
 	uint32_t largest_bucket_nuc_all = 0;
 	uint64_t gammaFactor = 2;
-	kmer_Set_Light(uint64_t k_val, uint64_t m1_val, uint64_t m2_val, uint64_t m3_val, uint64_t coreNumber_val, uint64_t bit_to_save)
+	kmer_Set_Light(uint64_t k_val,uint64_t coreNumber_val=1, uint64_t m1_val=10, uint64_t m3_val=4,  uint64_t bit_to_save=0)
 	  : k(k_val)
 	  , m1(m1_val)
 	  , m2(m1_val)
@@ -218,7 +240,6 @@ class kmer_Set_Light {
 		}
 	}
 
-	bool exists(const kmer& query);
 	void read_super_buckets(const string& input_file);
 	void create_mphf_mem(uint64_t beg, uint64_t end);
 	void create_mphf_disk(uint64_t beg, uint64_t end, bm::bvector<>& position_super_kmers_local);
@@ -227,52 +248,20 @@ class kmer_Set_Light {
 	void updateM(kmer& min, char nuc);
 	void updateRCM(kmer& min, char nuc);
 	void fill_positions(uint64_t beg, uint64_t end, bm::bvector<>& position_super_kmers_local);
-	bool exists(const string& query);
-	void multiple_query(const string& query);
-	kmer minimizer_according_xs(kmer seq);
-	void abundance_minimizer_construct(const string& input_file);
-	int64_t correct_pos(kmer mini, uint64_t p);
 	kmer update_kmer(uint64_t pos, kmer mini, kmer input);
 	kmer get_kmer(uint64_t pos, uint64_t mini);
 	void print_kmer(kmer num, uint64_t n = 100);
-	int32_t query_get_pos_unitig(const kmer canon, kmer minimizer);
-	uint64_t multiple_query_serial(const uint64_t minimizerV, const vector<kmer>& kmerV);
-	void file_query(const string& query_file);
 	uint64_t bool_to_int(uint64_t n_bits_to_encode, uint64_t pos, uint64_t start);
-	uint64_t multiple_query_optimized(kmer minimizerV, const vector<kmer>& kmerV);
 	void int_to_bool(uint64_t n_bits_to_encode, uint64_t X, uint64_t pos, uint64_t start);
 	kmer update_kmer_local(uint64_t pos, const vector<bool>& V, kmer input);
-	vector<bool> get_seq(kmer mini, uint64_t pos, uint64_t n);
-	kmer minimizer_graph(kmer seq);
-	bool single_query(const kmer minimizer, kmer kastor);
-	bool multiple_minimizer_query_bool(const kmer minimizer, kmer kastor, uint64_t prefix_length, uint64_t suffix_length);
-	int64_t multiple_minimizer_query_hash(const kmer minimizer, kmer kastor, uint64_t prefix_length, uint64_t suffix_length);
-	bool query_kmer_bool(kmer canon);
-	pair<uint64_t, uint64_t> query_sequence_bool(const string& query);
 	string kmer2str(kmer num);
 	kmer regular_minimizer(kmer seq);
 	void create_super_buckets(const string&);
-	void create_super_buckets_list(const vector<string>& input_files);
-	int64_t query_kmer_hash(kmer canon);
-	int64_t query_get_hash(const kmer canon, kmer minimizer);
-	vector<int64_t> query_sequence_hash(const string& query);
 	void construct_index(const string& input_file, const string& osef = "");
-	vector<int64_t> query_sequence_minitig(const string& query);
-	int64_t query_get_rank_minitig(const kmer canon, uint64_t minimizer);
-	int64_t query_kmer_minitig(kmer canon);
-	kmer mantis(uint64_t n);
 	vector<kmer> kmer_to_superkmer(const kmer canon, kmer minimizer, int64_t& rank, int64_t& hash);
 	int64_t hash_to_rank(const int64_t hash, kmer minimizer);
 	int64_t kmer_to_hash(const kmer canon, kmer minimizer);
-	void get_monocolor_minitigs(const vector<string>& minitigs,
-	                            const vector<int64_t>& color,
-	                            const vector<uint16_t>& coverage,
-	                            ofstream* out,
-	                            const string& mini,
-	                            uint64_t number_color);
-	void merge_super_buckets(const string& input_file, uint64_t number_color, ofstream* out);
 	string compaction(const string& seq1, const string& seq2, bool);
-	void construct_index_fof(const string& input_file, const string& osef = "", int = 0);
 	void reset();
 	void dump_disk(const string& output_file);
 	vector<bool> get_presence_query(const string& seq);
@@ -286,34 +275,19 @@ class kmer_Set_Light {
 	uint64_t rcb(const uint64_t&);
 	uint64_t canonize(uint64_t x, uint64_t n);
 	kmer get_kmer(uint64_t pos);
-	//~ uint64_t get_minimizer_from_header(string& header, zstr::ifstream& in);
-
 	void str2bool(const string& str, uint64_t mini);
 	void dump_and_destroy(const string& output_file);
-	bool similar_count(const vector<uint16_t>& V1, const vector<uint16_t>& V2);
-	void chd(const string& dir);
-	void merge_super_buckets_direct(const string& input_file, uint64_t number_color, ofstream* out);
 	kmer regular_minimizer_pos(kmer seq, uint64_t& position);
-	kmer select_good_successor(const robin_hood::unordered_node_map<kmer, kmer_context>& kmer2context, const kmer& canon);
-	kmer select_good_predecessor(robin_hood::unordered_node_map<kmer, kmer_context>& kmer2context, const kmer& canon);
-	uint16_t parseCoverage(const string& str);
-	void init_discretization_scheme();
-	uint16_t parseCoverage_bin(const string& str);
-	uint16_t abundance_at(uint8_t index);
-	uint8_t return_count_bin(uint16_t abundance);
 	void initialize_buckets();
-	//Reindeer
-	void write_buffer_count(vector<string>& buffers, zstr::ofstream* out, vector<uint16_t>& headerV, string& seq2dump, int32_t minimi);
-	void write_buffer_color(vector<string>& buffers, zstr::ofstream* out, vector<uint8_t>& headerV, string& seq2dump, int32_t minimi);
+	//~ //Reindeer
+	//~ void write_buffer_count(vector<string>& buffers, zstr::ofstream* out, vector<uint16_t>& headerV, string& seq2dump, int32_t minimi);
+	//~ void write_buffer_color(vector<string>& buffers, zstr::ofstream* out, vector<uint8_t>& headerV, string& seq2dump, int32_t minimi);
 	uint64_t get_minimizer_from_header(zstr::ifstream& in);
-	void merge_super_buckets_mem(const string& input_file, uint64_t number_color, string& out_name,uint64_t number_pass=1, int colormode=1 );
-	void get_monocolor_minitigs_mem(vector<robin_hood::unordered_node_map<kmer, kmer_context>>& min2kmer2context,
-	                                zstr::ofstream* out,
-	                                const vector<int32_t>& mini,
-	                                uint64_t number_color, int colormode);
+	//~ void merge_super_buckets_mem(const string& input_file, uint64_t number_color, string& out_name,uint64_t number_pass=1, int colormode=1 );
+	//~ void get_monocolor_minitigs_mem(vector<robin_hood::unordered_node_map<kmer, kmer_context>>& min2kmer2context,zstr::ofstream* out,const vector<int32_t>& mini,uint64_t number_color, int colormode);
 	void read_super_buckets_reindeer(const string& input_file);
-
-
 };
+
+
 
 #endif
