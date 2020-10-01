@@ -134,7 +134,114 @@ int main(int argc, char** argv) {
 	
 	
 	
+	//BLIGHT AS DICTIONARY/HASHMAP
 	
+	
+	
+	//We know the amont of distinct kmer present in the index
+	cout<<"The index contains "<<blight_index_6.get_kmer_number()<<" distinct kmers"<<endl;
+	
+	//We allocate an  integer for each  kmer of the index and set them to 0
+	uint abundance[blight_index_6.get_kmer_number()]={0};
+	
+	//We want to count the occurences of the indexed kmers in those dummy sequences
+	string seq1("CTGATCGATCGTACGTAGCTGCTGATCGATCGTACGTACGTACGTCAGT");
+	string seq2("CTGATCGATCGTACGTAGCTGCTGATCGATCGTA");
+	string seq3("CTGATCGATCGTACGTAGCTGCTGATCGATC");
+	string seq4("CTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTC");
+	
+	//We compute the indices of each kmer of the sequence
+	hash_vector=blight_index_6.get_hashes_query(seq1);
+	
+	//Foreach computed indice
+	for(uint i(0);i<hash_vector.size();++i){
+		int indice(hash_vector[i]);
+		
+		//If the kmer is in the index its indice will be a position in the abundance vector
+		if(indice!=-1){
+			
+			//We increment the associated counter
+			abundance[indice]++;
+		}
+	}
+	
+	//We do so for the other sequences
+	hash_vector=blight_index_6.get_hashes_query(seq2);
+	for(uint i(0);i<hash_vector.size();++i){
+		int indice(hash_vector[i]);
+		if(indice!=-1){
+			abundance[indice]++;
+		}
+	}
+	
+	hash_vector=blight_index_6.get_hashes_query(seq3);
+	for(uint i(0);i<hash_vector.size();++i){
+		int indice(hash_vector[i]);
+		if(indice!=-1){
+			abundance[indice]++;
+		}
+	}
+	
+	hash_vector=blight_index_6.get_hashes_query(seq4);
+	for(uint i(0);i<hash_vector.size();++i){
+		int indice(hash_vector[i]);
+		if(indice!=-1){
+			abundance[indice]++;
+		}
+	}
+	
+	//We take a look at the  computed abundances
+	hash_vector=blight_index_6.get_hashes_query(my_query);
+	for(uint i(0);i<hash_vector.size();++i){
+		int indice(hash_vector[i]);
+		if(indice!=-1){
+			cout<<abundance[hash_vector[i]]<<' ';
+		}
+	}
+	cout<<endl;
+	
+	
+	
+	//KMER INTERATOR
+	
+	
+	
+	//Another way to explore the index kmer is to use an iterator
+	kmer_Set_Light_iterator it(&blight_index_6);
+	
+	vector<uint64_t> all_indices;
+	do{
+		//We can obtain a binary representation of the kmer as a integer
+		kmer kmer_binary(it.get_kmer());
+		cout<<"Kmer as an integer: "<<kmer_binary<<endl;
+		
+		//Or as a sequence
+		string kmer_sequence(it.get_kmer_str());
+		cout<<"Kmer in ASCII " <<kmer_sequence<<endl;
+		
+		//We compute the indice of each kmer and add them in a vector
+		hash_vector=blight_index_6.get_hashes_query(kmer_sequence);
+		all_indices.push_back(hash_vector[0]);
+		
+		//If iterator.next() return false it mean that there is no more kmer in the index
+	}while(it.next());
+	
+	
+	//We want to check that all the integers between 0 and number_kmer-1 are indice of an indexed kmer (Bijection)
+	
+	//We sort all the  stored indices
+	sort(all_indices.begin(),all_indices.end());
+	
+	//It should be the list of integer [0,kmer_number[
+	for(uint i(0);i<blight_index_6.get_kmer_number();++i){
+		if(all_indices[i]!=i){
+			cout<<"Noooo  the indices are not bijective with [O,number_kmer()[ !!!"<<endl;
+			return 1;
+		}else{
+			cout<<i<<' ';
+		}
+	}
+	cout<<"Everything went fine!"<<endl;
 	
 	return 0;
 }

@@ -30,6 +30,12 @@ using namespace chrono;
 
 
 
+uint64_t kmer_Set_Light::get_kmer_number(){
+	return number_kmer;
+}
+
+
+
 __uint128_t kmer_Set_Light::rcb(const __uint128_t& in) {
 	assume(k <= 64, "k=%u > 64", k);
 	union kmer_u {
@@ -1205,6 +1211,8 @@ void kmer_Set_Light::dump_disk(const string& output_file) {
 
 	// VARIOUS INTEGERS
 	out.write(reinterpret_cast<const char*>(&k), sizeof(k));
+	out.write(reinterpret_cast<const char*>(&number_kmer), sizeof(number_kmer));
+	out.write(reinterpret_cast<const char*>(&number_super_kmer), sizeof(number_super_kmer));
 	out.write(reinterpret_cast<const char*>(&m1), sizeof(m1));
 	out.write(reinterpret_cast<const char*>(&m3), sizeof(m3));
 	out.write(reinterpret_cast<const char*>(&minimizer_size_graph), sizeof(minimizer_size_graph));
@@ -1262,6 +1270,8 @@ void kmer_Set_Light::dump_and_destroy(const string& output_file) {
 
 	// VARIOUS INTEGERS
 	out.write(reinterpret_cast<const char*>(&k), sizeof(k));
+	out.write(reinterpret_cast<const char*>(&number_kmer), sizeof(number_kmer));
+	out.write(reinterpret_cast<const char*>(&number_super_kmer), sizeof(number_super_kmer));
 	out.write(reinterpret_cast<const char*>(&m1), sizeof(m1));
 	out.write(reinterpret_cast<const char*>(&m3), sizeof(m3));
 	out.write(reinterpret_cast<const char*>(&minimizer_size_graph), sizeof(minimizer_size_graph));
@@ -1319,6 +1329,8 @@ kmer_Set_Light::kmer_Set_Light(const string& index_file) {
 	zstr::ifstream out(index_file);
 	// VARIOUS INTEGERS
 	out.read(reinterpret_cast<char*>(&k), sizeof(k));
+	out.read(reinterpret_cast<char*>(&number_kmer), sizeof(number_kmer));
+	out.read(reinterpret_cast<char*>(&number_super_kmer), sizeof(number_super_kmer));
 	out.read(reinterpret_cast<char*>(&m1), sizeof(m1));
 	m2         = m1;
 	coreNumber = 20;

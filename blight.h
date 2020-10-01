@@ -241,6 +241,7 @@ class kmer_Set_Light {
 	}
 
 	void read_super_buckets(const string& input_file);
+	uint64_t get_kmer_number();
 	void create_mphf_mem(uint64_t beg, uint64_t end);
 	void create_mphf_disk(uint64_t beg, uint64_t end, bm::bvector<>& position_super_kmers_local);
 	void updateK(kmer& min, char nuc);
@@ -286,6 +287,63 @@ class kmer_Set_Light {
 	//~ void merge_super_buckets_mem(const string& input_file, uint64_t number_color, string& out_name,uint64_t number_pass=1, int colormode=1 );
 	//~ void get_monocolor_minitigs_mem(vector<robin_hood::unordered_node_map<kmer, kmer_context>>& min2kmer2context,zstr::ofstream* out,const vector<int32_t>& mini,uint64_t number_color, int colormode);
 	void read_super_buckets_reindeer(const string& input_file);
+};
+
+
+
+class kmer_Set_Light_iterator {
+public:
+	uint64_t rank;
+	uint64_t kmer_id;
+	uint64_t position;
+	uint64_t next_position;
+	bm::id64_t rank_position;
+	kmer_Set_Light* index_ptr;
+	
+	kmer_Set_Light_iterator(kmer_Set_Light* ptdr){
+		index_ptr=ptdr;
+		kmer_id=rank=1;
+		position=0;
+		rank_position=0;
+		rank_position=(index_ptr->position_super_kmers.get_next(rank_position));
+		if (rank_position == 0) {
+			next_position = index_ptr->bucketSeq.size() - index_ptr->k;
+		}else{
+			next_position = rank_position+(index_ptr->k - 1);
+		}
+	}
+	
+	string get_kmer_str()const{
+		kmer seqR = index_ptr->get_kmer(position);
+		return index_ptr->kmer2str(seqR);
+	}
+	
+	
+	kmer get_kmer()const{
+		return index_ptr->get_kmer(position);
+	}
+	
+	bool next(){
+		kmer_id++;
+		
+		if(kmer_id>index_ptr->number_kmer){
+			return false;
+		}
+		position++;
+		if(position+index_ptr->k-1>=next_position){
+			rank++;
+			position=next_position;
+			rank_position=(index_ptr->position_super_kmers.get_next(rank_position));
+			if (next_position == 0) {
+				next_position = index_ptr->bucketSeq.size() - index_ptr->k;
+			} else {
+				next_position = rank_position + rank  * (index_ptr->k - 1);
+			}
+		}
+		
+		return true;
+	}
+
 };
 
 
