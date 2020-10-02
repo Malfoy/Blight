@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
 	
 	
 	//We check the presence/absence of the query
-	for(uint i(0);i<presence_vector.size();++i){
+	for(int i(0);i<presence_vector.size();++i){
 		if(presence_vector[i]){
 			cout<<"Present ";
 		}else{
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
 	
 	//We check the presence/absence of the  bad query
 	presence_vector=(blight_index_5.get_presence_query(my_query_bad));
-	for(uint i(0);i<presence_vector.size();++i){
+	for(int i(0);i<presence_vector.size();++i){
 		if(presence_vector[i]){
 			cout<<"Present ";
 		}else{
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
 	
 	
 	//We print the identifier of the query
-	for(uint i(0);i<hash_vector.size();++i){
+	for(int i(0);i<hash_vector.size();++i){
 		cout<<hash_vector[i]<<' ';
 	}
 	cout<<endl;
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
 	
 	//We print the identifier of the bad query
 	hash_vector=blight_index_5.get_hashes_query(my_query_bad);
-	for(uint i(0);i<hash_vector.size();++i){
+	for(int i(0);i<hash_vector.size();++i){
 		cout<<hash_vector[i]<<' ';
 	}
 	cout<<endl;
@@ -118,8 +118,6 @@ int main(int argc, char** argv) {
 	//Write the index as a file on the disk
 	blight_index_5.dump_disk("blight_index.gz");
 	
-	//Write the index as a file on the disk and deallocate the memory
-	blight_index_5.dump_and_destroy("blight_index2.gz");
 	
 	//Load an index previously wrote on the disk
 	kmer_Set_Light blight_index_6("blight_index.gz");
@@ -127,7 +125,7 @@ int main(int argc, char** argv) {
 	
 	//We print the identifier of the query performed on the loaded index
 	hash_vector=blight_index_6.get_hashes_query(my_query);
-	for(uint i(0);i<hash_vector.size();++i){
+	for(int i(0);i<hash_vector.size();++i){
 		cout<<hash_vector[i]<<' ';
 	}
 	cout<<endl;
@@ -142,7 +140,7 @@ int main(int argc, char** argv) {
 	cout<<"The index contains "<<blight_index_6.get_kmer_number()<<" distinct kmers"<<endl;
 	
 	//We allocate an  integer for each  kmer of the index and set them to 0
-	uint abundance[blight_index_6.get_kmer_number()]={0};
+	int abundance[blight_index_6.get_kmer_number()]={0};
 	
 	//We want to count the occurences of the indexed kmers in those dummy sequences
 	string seq1("CTGATCGATCGTACGTAGCTGCTGATCGATCGTACGTACGTACGTCAGT");
@@ -154,7 +152,7 @@ int main(int argc, char** argv) {
 	hash_vector=blight_index_6.get_hashes_query(seq1);
 	
 	//Foreach computed indice
-	for(uint i(0);i<hash_vector.size();++i){
+	for(int i(0);i<hash_vector.size();++i){
 		int indice(hash_vector[i]);
 		
 		//If the kmer is in the index its indice will be a position in the abundance vector
@@ -167,7 +165,7 @@ int main(int argc, char** argv) {
 	
 	//We do so for the other sequences
 	hash_vector=blight_index_6.get_hashes_query(seq2);
-	for(uint i(0);i<hash_vector.size();++i){
+	for(int i(0);i<hash_vector.size();++i){
 		int indice(hash_vector[i]);
 		if(indice!=-1){
 			abundance[indice]++;
@@ -175,7 +173,7 @@ int main(int argc, char** argv) {
 	}
 	
 	hash_vector=blight_index_6.get_hashes_query(seq3);
-	for(uint i(0);i<hash_vector.size();++i){
+	for(int i(0);i<hash_vector.size();++i){
 		int indice(hash_vector[i]);
 		if(indice!=-1){
 			abundance[indice]++;
@@ -183,7 +181,7 @@ int main(int argc, char** argv) {
 	}
 	
 	hash_vector=blight_index_6.get_hashes_query(seq4);
-	for(uint i(0);i<hash_vector.size();++i){
+	for(int i(0);i<hash_vector.size();++i){
 		int indice(hash_vector[i]);
 		if(indice!=-1){
 			abundance[indice]++;
@@ -192,7 +190,7 @@ int main(int argc, char** argv) {
 	
 	//We take a look at the  computed abundances
 	hash_vector=blight_index_6.get_hashes_query(my_query);
-	for(uint i(0);i<hash_vector.size();++i){
+	for(int i(0);i<hash_vector.size();++i){
 		int indice(hash_vector[i]);
 		if(indice!=-1){
 			cout<<abundance[hash_vector[i]]<<' ';
@@ -209,7 +207,7 @@ int main(int argc, char** argv) {
 	//Another way to explore the index kmer is to use an iterator
 	kmer_Set_Light_iterator it(&blight_index_6);
 	
-	vector<uint64_t> all_indices;
+	vector<int64_t> all_indices;
 	do{
 		//We can obtain a binary representation of the kmer as a integer
 		kmer kmer_binary(it.get_kmer());
@@ -233,7 +231,7 @@ int main(int argc, char** argv) {
 	sort(all_indices.begin(),all_indices.end());
 	
 	//It should be the list of integer [0,kmer_number[
-	for(uint i(0);i<blight_index_6.get_kmer_number();++i){
+	for(int i(0);i<blight_index_6.get_kmer_number();++i){
 		if(all_indices[i]!=i){
 			cout<<"Noooo  the indices are not bijective with [O,number_kmer()[ !!!"<<endl;
 			return 1;

@@ -258,7 +258,7 @@ class kmer_Set_Light {
 	string kmer2str(kmer num);
 	kmer regular_minimizer(kmer seq);
 	void create_super_buckets(const string&);
-	void construct_index(const string& input_file, const string& osef = "");
+	void construct_index(const string& input_file, const string& wdir = "");
 	vector<kmer> kmer_to_superkmer(const kmer canon, kmer minimizer, int64_t& rank, int64_t& hash);
 	int64_t hash_to_rank(const int64_t hash, kmer minimizer);
 	int64_t kmer_to_hash(const kmer canon, kmer minimizer);
@@ -266,8 +266,8 @@ class kmer_Set_Light {
 	void reset();
 	void dump_disk(const string& output_file);
 	vector<bool> get_presence_query(const string& seq);
-	vector<int64_t> get_rank_query(const string& seq);
 	vector<int64_t> get_hashes_query(const string& seq);
+	vector<int64_t> get_rank_query(const string& seq);
 	void file_query_presence(const string& query_file);
 	void file_query_hases(const string& query_file, bool check = true);
 	void file_query_rank(const string& query_file);
