@@ -12,7 +12,7 @@ The kmer identifiers are in\[0,N\[ where N is the number of kmer in the index.
 Hence, Blight can be seen as a Minimal Perfect Hash Function (MPHF) that handle alien kmers.
 
 
-##Key properties:
+## Key properties:
 A Blight index is
 - Deterministic, it produce no false positive or false negative.
 - Built from a compacted de bruijn graph
@@ -20,7 +20,7 @@ A Blight index is
 - Fast and ressource efficient even for the largest kmer set
 
 
-##Graph construction
+## Graph construction
 A Blight index is constructed from a Fasta file, whose sequence contains the kmer to index with no duplicate.
 An efficient way to build such a file is to construct a compacted de Bruijn graph from the sequences of interest.
 We recommend the use of BCALM2(https://github.com/GATB/bcalm) to construct such graph from a set of sequences in Fasta,Fastq, gziped or not.
@@ -31,7 +31,7 @@ $bcalm -in my_fasta_file.fa -kmer-size 31 -abundance-min 1 -out my_graph$
 
 Note that by default bcalm2 will remove unique kmer if the parameter abundance-min is not set
 
-##Compilation
+## Compilation
 After the basic instalation using:
 
 $git clone --depth 1  https://github.com/Malfoy/Blight$
@@ -46,24 +46,24 @@ You can start to use the API by modifying the snippet.cpp file.
 The makefile show you how to compile blight and lz4 object files and how to link them to your program.
 
 
-##Main parameters
+## Main parameters
 A blight index can be tuned with several parameters impacting its overall performances
 
-###Kmer_size k
+### Kmer_size k
 All the words of length k present in the fasta file will be indexed.
 
-###Core_Number c
+### Core_Number c
 The number of thread that can be used by Blight to perform queries and construct its index.
 The default value is 1 thread.
 
-###Minimizer size m
+### Minimizer size m
 The minimizer of a kmer is its minimal word of length m  (according to a hash function)
 Blight will use 4^m partition to index the kmer according to their minimizer.
 Higher minimizer size reduce the memory fingerprint up to the point where the constant overhead of O(4^m) is too large.
 Higher minimizer can also accelerate the query time by improving cache coherency.
 The default value is 10 for roughly 1M partitions.
 
-###File_number_exponent s
+### File_number_exponent s
 Blight will use 4^s temporary files to construct the index.
 Allowing more files can accelerate the construction and diminish the  memory used during this step.
 The default value is 4 for roughly 256 files.
@@ -72,7 +72,7 @@ On most linux system
 $ ulimit -n 2000$
 Will allow the use of 2000 open files
  
-###Bits_to_save b
+### Bits_to_save b
 Blight will subsample the kmer position in the index.
 This will save b bits per kmer but each query will perform at most 2^b verification to find a kmer_Set_Light.
 With low b values, the impact on the query time is low because of cache mecanism, but for high b values (b>5), an increment double the expected query time.
@@ -80,11 +80,11 @@ The default value is 0 (no subsampling)
 
 
 
-##Main functions
+## Main functions
 
 All the useful functions are used in the snippet toy program, we will describe them in details here
 
-###Index construction
+### Index construction
 
 A blight index is an object with the given constructor setting the index parameter described previously:
 ```cpp
@@ -106,7 +106,7 @@ Blight create its temporary files in a working directory that MUST exist.
 ```
 
 
-##Queries
+## Queries
 
 Once constructed a blight index can perform two kind of queries from a sequence.
 Both function output a vector with a value for each kmer of the query sequence.
@@ -126,7 +126,7 @@ The associated indices are in the range \[0, get_kmer_number()\] for the kmer pr
 
 
 
-##Index on disk
+## Index on disk
 
 Once constructed the blight index can be saved on the disk to be reused later with the function dump_disk 
 
@@ -139,7 +139,7 @@ It can be loaded later with a load constructor
 kmer_Set_Light(const string& output_file);
 ```
 
-##Blight as a dictonnary
+## Blight as a dictonnary
 Blight can be combined with an array of values to be used as a static hashtable.
 As show in the snippet, an array of value can be allocated using the function get_kmer_number() that indicate the amount of kmer present in the index.
 ```cpp
@@ -148,7 +148,7 @@ int abundance[blight_index_6.get_kmer_number()]={0};
 This way blight will associate each indexed kmer to a position in the abundance array
 
 
-##Iterator
+## Iterator
 It can be usefull to be able to iterate on all the kmer of the index.
 This can be done using an iterator as shown in the snippet.
 
