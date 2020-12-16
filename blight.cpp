@@ -1,10 +1,10 @@
 #include "blight.h"
-#include "bbhash.h"
-#include "common.h"
+#include "include/bbhash.h"
+#include "include/common.h"
 #include "lz4/lz4_stream.h"
-#include "robin_hood.h"
+#include "include/robin_hood.h"
 #include "utils.h"
-#include "zstr.hpp"
+#include "include/zstr.hpp"
 #include <algorithm>
 #include <atomic>
 #include <chrono>

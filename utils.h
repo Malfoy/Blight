@@ -14,10 +14,10 @@
 #include <algorithm>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "bbhash.h"
+#include "include/bbhash.h"
 #include "blight.h"
-#include "zstr.hpp"
-#include "common.h"
+#include "include/zstr.hpp"
+#include "include/common.h"
 
 #ifndef UTIL
 #	define UTIL

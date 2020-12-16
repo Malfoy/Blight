@@ -15,13 +15,13 @@
 #include <sys/stat.h>
 #include <sys/resource.h>
 #include <sys/time.h>
-#include "common.h"
-#include "bbhash.h"
-#include "bm64.h"
-#include "encoding.h"
-#include "zstr.hpp"
-#include "bmserial.h"
-#include "robin_hood.h"
+#include "include/common.h"
+#include "include/bbhash.h"
+#include "include/bm64.h"
+#include "include/encoding.h"
+#include "include/zstr.hpp"
+#include "include/bmserial.h"
+#include "include/robin_hood.h"
 
 
 
@@ -299,7 +299,7 @@ public:
 	uint64_t next_position;
 	bm::id64_t rank_position;
 	kmer_Set_Light* index_ptr;
-	
+
 	kmer_Set_Light_iterator(kmer_Set_Light* ptdr){
 		index_ptr=ptdr;
 		kmer_id=rank=1;
@@ -312,20 +312,20 @@ public:
 			next_position = rank_position+(index_ptr->k - 1);
 		}
 	}
-	
+
 	string get_kmer_str()const{
 		kmer seqR = index_ptr->get_kmer(position);
 		return index_ptr->kmer2str(seqR);
 	}
-	
-	
+
+
 	kmer get_kmer()const{
 		return index_ptr->get_kmer(position);
 	}
-	
+
 	bool next(){
 		kmer_id++;
-		
+
 		if(kmer_id>index_ptr->number_kmer){
 			return false;
 		}
@@ -340,7 +340,7 @@ public:
 				next_position = rank_position + rank  * (index_ptr->k - 1);
 			}
 		}
-		
+
 		return true;
 	}
 
