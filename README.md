@@ -27,15 +27,19 @@ We recommend the use of BCALM2(https://github.com/GATB/bcalm) to construct such 
 
 The bcalm2 command should look like this:
 
-$bcalm -in my_fasta_file.fa -kmer-size 31 -abundance-min 1 -out my_graph$
+```sh
+bcalm -in my_fasta_file.fa -kmer-size 31 -abundance-min 1 -out my_graph
+```
 
 Note that by default bcalm2 will remove unique kmer if the parameter abundance-min is not set
 
 ## Compilation
 After the basic instalation using:
 
-$git clone --depth 1  https://github.com/Malfoy/Blight$
-$make -j 4$
+```sh
+git clone --depth 1  https://github.com/Malfoy/Blight
+make -j 4
+```
 
 You get the snippet binary that play with the Blight API and a benchmark binary bench_blight.
 
@@ -69,7 +73,10 @@ Allowing more files can accelerate the construction and diminish the  memory use
 The default value is 4 for roughly 256 files.
 
 On most linux system
-$ ulimit -n 2000$
+```sh
+ulimit -n 2000
+```
+
 Will allow the use of 2000 open files
  
 ### Bits_to_save b
