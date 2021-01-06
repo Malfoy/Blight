@@ -173,10 +173,7 @@ void kmer_Set_Light::construct_index(const string& input_file, const string& tmp
 		cout << "n should be inferior to m" << endl;
 		exit(0);
 	}
-	if (m2 < m3) {
-		cout << "s should be inferior to n" << endl;
-		exit(0);
-	}
+
 	high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	nuc_minimizer                        = new uint32_t[minimizer_number.value()];
 	current_pos                          = new uint64_t[minimizer_number.value()];
