@@ -634,7 +634,7 @@ void kmer_Set_Light::read_super_buckets(const string& input_file) {
 
 
 
-inline kmer kmer_Set_Light::get_kmer(uint64_t mini, uint64_t pos) {
+ kmer kmer_Set_Light::get_kmer(uint64_t mini, uint64_t pos) {
 	kmer res(0);
 	uint64_t bit           = (start_bucket[mini] + pos) * 2;
 	const uint64_t bitlast = bit + 2 * k;
@@ -647,7 +647,7 @@ inline kmer kmer_Set_Light::get_kmer(uint64_t mini, uint64_t pos) {
 
 
 
-inline kmer kmer_Set_Light::get_kmer(uint64_t pos) {
+ kmer kmer_Set_Light::get_kmer(uint64_t pos) {
 	kmer res(0);
 	uint64_t bit           = (pos)*2;
 	const uint64_t bitlast = bit + 2 * k;
@@ -660,13 +660,13 @@ inline kmer kmer_Set_Light::get_kmer(uint64_t pos) {
 
 
 
-inline kmer kmer_Set_Light::update_kmer(uint64_t pos, kmer mini, kmer input) {
+ kmer kmer_Set_Light::update_kmer(uint64_t pos, kmer mini, kmer input) {
 	return update_kmer_local(start_bucket[mini] + pos, bucketSeq, input);
 }
 
 
 
-inline kmer kmer_Set_Light::update_kmer_local(uint64_t pos, const vector<bool>& V, kmer input) {
+ kmer kmer_Set_Light::update_kmer_local(uint64_t pos, const vector<bool>& V, kmer input) {
 	input <<= 2;
 	uint64_t bit0 = pos * 2;
 	input |= V[bit0] * 2 | V[bit0 + 1];
