@@ -1,0 +1,4 @@
+*.o
+libBlight*
+bench_blight
+snippet_*ic
