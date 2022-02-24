@@ -4,7 +4,7 @@ CC=gcc
 
 
 #Here snippet should be your program
-all: snippet bench_blight
+all: snippet bench_blight sub_sampler
 #bench_blight is only here for benchmark purpose and can be removed
 
 
@@ -20,6 +20,12 @@ CFLAGS_BLIGHT+= -DNDEBUG -Ofast -flto -march=native -mtune=native -g -std=c++11 
 LZ4O=lz4/lz4frame.o lz4/lz4.o lz4/xxhash.o lz4/lz4hc.o
 BLO=blight.o utils.o
 
+
+sub_sampler: sub_sampler.o $(BLO)
+	$(CXX) -o $@ $^ $(CFLAGS_BLIGHT)
+
+sub_sampler.o: SubSampler.cpp
+	$(CXX) -o $@ -c $< $(CFLAGS_BLIGHT)
 
 
 #Here  you should compile be your program using Blight instead of snippet
