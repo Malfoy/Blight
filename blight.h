@@ -279,6 +279,7 @@ class kmer_Set_Light {
 	void str2bool(const string& str, uint64_t mini);
 	void dump_and_destroy(const string& output_file);
 	kmer regular_minimizer_pos(kmer seq, uint64_t& position);
+	
 	void initialize_buckets();
 	//~ //Reindeer
 	//~ void write_buffer_count(vector<string>& buffers, zstr::ofstream* out, vector<uint16_t>& headerV, string& seq2dump, int32_t minimi);
@@ -287,6 +288,22 @@ class kmer_Set_Light {
 	//~ void merge_super_buckets_mem(const string& input_file, uint64_t number_color, string& out_name,uint64_t number_pass=1, int colormode=1 );
 	//~ void get_monocolor_minitigs_mem(vector<robin_hood::unordered_node_map<kmer, kmer_context>>& min2kmer2context,zstr::ofstream* out,const vector<int32_t>& mini,uint64_t number_color, int colormode);
 	void read_super_buckets_reindeer(const string& input_file);
+		void init_discretization_scheme();
+			uint8_t return_count_bin(uint16_t abundance);
+				uint16_t parseCoverage_bin(const string& str);
+					bool similar_count(const vector<uint16_t>& V1, const vector<uint16_t>& V2);
+					void write_buffer_count(vector<string>& buffers, zstr::ofstream* out, vector<uint16_t>& headerV, string& seq2dump, int32_t minimi);
+	void write_buffer_color(vector<string>& buffers, zstr::ofstream* out, vector<uint8_t>& headerV, string& seq2dump, int32_t minimi);
+	void merge_super_buckets_mem(const string& input_file, uint64_t number_color, string& out_name,uint64_t number_pass=1, int colormode=1 );
+	void get_monocolor_minitigs_mem(vector<robin_hood::unordered_node_map<kmer, kmer_context>>& min2kmer2context,
+	                                zstr::ofstream* out,
+	                                const vector<int32_t>& mini,
+	                                uint64_t number_color, int colormode);
+	                                	void construct_index_fof(const string& input_file, const string& osef = "", int = 0);
+	                                		kmer select_good_successor(const robin_hood::unordered_node_map<kmer, kmer_context>& kmer2context, const kmer& canon);
+	                                			uint16_t parseCoverage(const string& str);
+	                                				void create_super_buckets_list(const vector<string>& input_files);
+	uint16_t abundance_at(uint8_t index);
 };
 
 
