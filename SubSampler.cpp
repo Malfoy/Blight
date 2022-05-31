@@ -211,7 +211,7 @@ int main(int argc, char** argv) {
         ss.parse_fasta(input);
         cout<<"I have seen "<<intToString(ss.total_kmer_number)<<" kmers and I selected "<<intToString(ss.selected_kmer_number)<<" kmers"<<endl;
         cout<<"This mean a pratical subsampling rate of "<<(double)ss.total_kmer_number/ss.selected_kmer_number<<endl;
-        cout<<"I have seen "<<intToString(ss.total_superkmer_number)<<" superkmers and I selected "<<intToString(ss.selected_kmer_number)<<" superkmers"<<endl;
+        cout<<"I have seen "<<intToString(ss.total_superkmer_number)<<" superkmers and I selected "<<intToString(ss.selected_superkmer_number)<<" superkmers"<<endl;
         cout<<"This mean a pratical subsampling rate of "<<(double)ss.total_superkmer_number/ss.selected_superkmer_number<<endl;
         cout<<"This mean a mean superkmer size of "<<(double)ss.total_kmer_number/ss.total_superkmer_number<<" kmer per superkmer in the input"<<endl;
         cout<<"This mean a mean superkmer size of "<<(double)ss.selected_kmer_number/ss.selected_superkmer_number<<" kmer per superkmer in the output"<<endl;
