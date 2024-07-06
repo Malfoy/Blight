@@ -270,11 +270,18 @@ kmer min_k(const kmer& k1, const kmer& k2) {
 	return k2;
 }
 
+//logan compatible
 uint16_t parseCoverage_exact(const string& str) {
 	size_t pos(str.find("km:f:"));
 	if (pos == string::npos) {
 		pos = (str.find("KM:f:"));
 	}
+	if (pos == std::string::npos) {
+        pos = str.find("ka:f:");
+    }
+    if (pos == std::string::npos) {
+        pos = str.find("KA:f:");
+    }
 	if (pos == string::npos) {
 		return 1;
 	}
@@ -282,9 +289,9 @@ uint16_t parseCoverage_exact(const string& str) {
 	while (str[i + pos + 5] != ' ') {
 		++i;
 	}
-	// cout<<"exact"<< (uint16_t)stof(str.substr(pos+5,i))<<endl;
 	return (uint16_t)stof(str.substr(pos + 5, i));
 }
+
 
 uint16_t parseCoverage_bool(const string& str) {
 	return 1;
